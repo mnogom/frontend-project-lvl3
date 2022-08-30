@@ -1,4 +1,4 @@
-import appStates from "./app-states.js";
+import appStates from './app-states.js';
 
 function View() {
   const elements = {
@@ -8,15 +8,18 @@ function View() {
     requestButtonEl: document.getElementById('requestButton'),
     rssFloatEl: document.querySelector('[data-input-target="#rssUrlInput"]'),
     rssInputEl: document.getElementById('rssUrlInput'),
-  }
+  };
 
-  this.setController = (controller) => this.controller = controller;
+  this.setController = (controller) => {
+    this.controller = controller;
+  };
+
   this.getController = () => {
     if (this.controller) {
       return this.controller;
     }
     throw Error('Controller is not defined');
-  }
+  };
 
   this.renderForm = (path, value) => {
     switch (path) {
@@ -30,7 +33,6 @@ function View() {
           if (errorDiv) {
             errorDiv.remove();
           }
-          return;
         } else {
           elements.rssFloatEl.classList.add('is-invalid');
           elements.rssInputEl.classList.add('is-invalid');
@@ -38,10 +40,10 @@ function View() {
           errorDiv.classList.add('invalid-feedback');
           errorDiv.textContent = errors.join(', ');
           elements.rssFloatEl.after(errorDiv);
-          return;
         }
+        break;
       default:
-        return;
+        break;
     }
   };
 
@@ -62,7 +64,7 @@ function View() {
         elements.formEl.reset();
         return;
       default:
-        throw Error(`Unknown state '${state}'`)
+        throw Error(`Unknown state '${state}'`);
     }
   };
 
@@ -74,7 +76,7 @@ function View() {
       listEl.append(el);
     });
     return listEl;
-  }
+  };
 
   this.renderData = (path, value) => {
     switch (path) {
@@ -91,9 +93,9 @@ function View() {
         elements.postsContainer.append(postsList);
         return;
       default:
-        throw Error(`Unknown path '${path}'`)
+        throw Error(`Unknown path '${path}'`);
     }
-  }
+  };
 }
 
 export default View;

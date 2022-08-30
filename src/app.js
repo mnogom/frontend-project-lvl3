@@ -1,7 +1,7 @@
-import Model from "./snippets/model.js";
-import View from "./snippets/view.js";
-import Controller from "./snippets/controller.js";
-import { fakeUrls } from "./snippets/fake-axios.js";
+import Model from './snippets/model.js';
+import View from './snippets/view.js';
+import Controller from './snippets/controller.js';
+import { fakeUrls } from './snippets/fake-axios.js';
 
 const app = () => {
   const model = new Model();
@@ -23,13 +23,15 @@ const app = () => {
   // --- auto-fillers ---
   Object.entries(fakeUrls).forEach(([name, url]) => {
     const button = document.createElement('button');
-    button.addEventListener('click', () => document.querySelector('#rssUrlInput').value = url);
+    button.addEventListener('click', () => {
+      document.querySelector('#rssUrlInput').value = url;
+    });
     button.textContent = name;
     document.body.append(button);
   });
   // --------------------
 
   form.querySelector('input[name="rssUrl"]').focus();
-}
+};
 
 export default app;

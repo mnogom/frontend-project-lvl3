@@ -7,7 +7,7 @@ const fakeUrls = {
 
 const fakeRequest = (url) => new Promise((resolve, reject) => setTimeout(() => {
   if (url === fakeUrls.ho) {
-    reject({error: 404})
+    reject({ error: 404 });
   }
   resolve({
     data: {
@@ -21,8 +21,8 @@ const fakeRequest = (url) => new Promise((resolve, reject) => setTimeout(() => {
         { name: 'jkl', description: 'J K L' },
         { name: 'zxc', description: 'Z X C' },
       ],
-    }
-  })
+    },
+  });
 }, 2000));
 
 export {

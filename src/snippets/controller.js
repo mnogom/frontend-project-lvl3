@@ -12,48 +12,53 @@ const getRssSheme = (existingFeeds) => {
 };
 
 function Controller() {
-  this.setModel = (model) => this.model = model;
+  this.setModel = (model) => {
+    this.model = model;
+  };
+
   this.getModel = () => {
     if (this.model) {
       return this.model;
     }
-    throw Error('Model is not defined')
-  }
+    throw Error('Model is not defined');
+  };
 
   this.handleValidateRssUrl = (rssUrl) => {
     const rssField = 'rssUrl';
 
     this.getModel().dropErrors(rssField);
     this.getModel().setAppState(appStates.submitted);
-    this.getModel().setFormRssUrl(rssUrl);
+    this.getModel().setFieldRssUrl(rssUrl);
 
     const rssShema = getRssSheme(this.getModel().getFeeds());
-    rssShema.validate(this.getModel().getFormRssUrl())
+    rssShema.validate(this.getModel().getFieldRssUrl())
       .then(() => {
         this.getModel().setAppState(appStates.requestedFeed);
-        this.handleRequest(rssUrl)
+        this.handleRequest(rssUrl);
       })
       .catch((e) => {
         this.getModel().setAppState(appStates.failedValidation);
         this.getModel().addError(rssField, e.message);
-      })
+      });
   };
 
   this.handleRequest = (url) => {
     fakeRequest(url)
       .then(({ data }) => {
         this.getModel().setAppState(appStates.recievedResponse);
+        this.getModel().setFieldRssUrl('');
+
         const feed = this.getModel().addFeed(data.name, url);
         const postsToAdd = data.feeds.map(({ name, description }) => (
-          { feedId: feed.id, name, description}
-        ))
-        this.getModel().addPosts(postsToAdd)
+          { feedId: feed.id, name, description }
+        ));
+        this.getModel().addPosts(postsToAdd);
       })
       .catch(() => {
         this.getModel().setAppState(appStates.recievedError);
         this.getModel().addError('rssUrl', 'Invalid response');
-      })
-  }
+      });
+  };
 }
 
 export default Controller;

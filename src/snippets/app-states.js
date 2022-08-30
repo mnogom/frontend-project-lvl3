@@ -5,6 +5,6 @@ const appStates = {
   requestedFeed: 'requested-feed',
   recievedResponse: 'recieved-response',
   recievedError: 'recieved-error',
-}
+};
 
 export default appStates;
