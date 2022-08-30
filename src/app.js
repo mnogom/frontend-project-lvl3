@@ -1,132 +1,35 @@
-import onChange from "on-change";
-import * as _ from 'lodash';
-import yup from 'yup';
+import Model from "./snippets/model.js";
+import View from "./snippets/view.js";
+import Controller from "./snippets/controller.js";
+import { fakeUrls } from "./snippets/fake-axios.js";
 
-const appStates = {
-  filling: 'filling',
-  validating: 'validating',
-  requested: 'requested',
-  recievedResponse: 'recieved-response',
-  recievedError: 'recieved-error',
-}
+const app = () => {
+  const model = new Model();
+  const view = new View();
+  const controller = new Controller();
 
-const elements = {
-  formEl: document.querySelector('form'),
-  postsContainer: document.getElementById('posts'),
-  feedsContainer: document.getElementById('feeds'),
-  requestButtonEl: document.getElementById('requestButton'),
-  rssInputEl: document.getElementById('rssUrlInput'),
-}
+  controller.setModel(model);
+  model.setView(view);
+  view.setController(controller);
 
-const renders = {
-  eraseErrors: () => {},
-  renderErrors: () => {},
-  renderLists: () => {},
-}
-
-const processHandle = (path, value) => {
-  switch (path === '') {
-    case appStates.filling:
-      renders.eraseErrors();
-      return;
-    case appStates.validating:
-      return;
-    case appStates.requested:
-      return;
-    case appStates.recievedResponse:
-      return;
-    case appStates.recievedError:
-      return;
-    default:
-      return;
-  }
-}
-
-const app = (config = {}) => {
-
-  const state = onChange({
-    feeds: [],
-    posts: [],
-    ...config,
-    appState: appStates.filling,
-    form: {
-      fields: {
-        rssUrl: {
-          value: '',
-          isValid: true,
-          errors: [],
-        },
-      },
-    },
-  }, processHandle);
-
-  const handlers = {
-    handleSubmit: (event) => {
-      event.preventDefault();
-      const formData = new FormData(event.target);
-      state.form.fields.rssUrl.value = formData.get('rssUrl');
-    },
-  }
-
-  const input = document.getElementById('rssUrlInput');
-  input.focus();
-
-  elements.formEl.addEventListener('submit', (event) => handlers.handleSubmit(event));
-
-  document.querySelectorAll('[data-type="rssUrlExample"]').forEach((element) => {
-    element.addEventListener('click', (event) => {
-      event.preventDefault();
-      elements.rssInputEl.value = event.target.textContent.trim();
-    })
+  const form = document.querySelector('form');
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const formData = new FormData(event.target);
+    const rssUrl = formData.get('rssUrl');
+    controller.handleValidateRssUrl(rssUrl);
   });
-};
+
+  // --- auto-fillers ---
+  Object.entries(fakeUrls).forEach(([name, url]) => {
+    const button = document.createElement('button');
+    button.addEventListener('click', () => document.querySelector('#rssUrlInput').value = url);
+    button.textContent = name;
+    document.body.append(button);
+  });
+  // --------------------
+
+  form.querySelector('input[name="rssUrl"]').focus();
+}
 
 export default app;
-
-
-// const renderPosts = (posts) => {
-//   if (posts.length === 0) {
-//     return;
-//   }
-  
-//   const postsHeader = document.createElement('h1');
-//   postsHeader.textContent = 'Posts'
-//   elements.postsContainer.append(postsHeader);
-
-//   const postsList = document.createElement('ul');
-//   posts.forEach(({ name }) => {
-//     const postEl = document.createElement('li');
-//     postEl.textContent = name;
-//     postsList.append(postEl);
-//   });
-//   elements.postsContainer.append(postsList);
-// };
-
-// const renderFeeds = (feeds) => {
-//   if (feeds.length === 0) {
-//     return;
-//   }
-  
-//   const feedsHeader = document.createElement('h1');
-//   feedsHeader.textContent = 'Feeds';
-//   elements.feedsContainer.append(feedsHeader);
-
-//   const postsList = document.createElement('ul');
-//   posts.forEach(({ name }) => {
-//     const postEl = document.createElement('li');
-//     postEl.textContent = name;
-//     postsList.append(postEl);
-//   });
-//   elements.postsContainer.append(postsList);
-// }
-
-// switch (objectName) {
-//   case 'posts':
-//     renderPosts(appState.posts);
-//     break;
-//   case 'feeds':
-//     renderFeeds(appState.feeds);
-//     break;
-//   default:
-//     break;
-// }
