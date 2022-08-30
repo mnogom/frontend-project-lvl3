@@ -5,12 +5,12 @@ const appStates = {
   filling: 'filling',
   submitted: 'submitted',
   failedValidation: 'failed-validation',
-  requested: 'requested',
+  requestedFeed: 'requested-feed',
   recievedResponse: 'recieved-response',
   recievedError: 'recieved-error',
 }
 
-const rssShema = yup.string().required().email();
+const rssShema = yup.string().required().email('Must be email');
 
 function View() {
   this.setController = (controller) => this.controller = controller;
@@ -42,17 +42,27 @@ function Model(config = {}) {
   this.setAppState = (newAppState) => this.state.appState = newAppState;
   this.setRssUrl = (rssUrl) => this.state.form.fields.rssUrl.value = rssUrl;
   this.getRssUrl = () => this.state.form.fields.rssUrl.value;
+  this.addFeed = (rssUrl) => this.posts.push(rssUrl);
+  this.addError = (field, message) => this.state.form.fields[field].errors.push(message);
+  this.dropErrors = (field) => this.state.form.fields[field].errors = [];
 }
 
 function Controller() {
   this.setModel = (model) => this.model = model;
 
   this.handleValidate = (rssUrl) => {
+    this.model.dropErrors();
     this.model.setAppState(appStates.submitted);
     this.model.setRssUrl(rssUrl);
-    console.log(this.model.getRssUrl());
 
-    rssShema.isValid(this.model.state.form.fields.rssUrl.value).then(console.log).catch(console.log)
+    rssShema.validate(this.model.getRssUrl)
+      .then(() => {
+        this.model.setAppState(appStates.requestedFeed);
+        this.model.addFeed(rssUrl);
+      })
+      .catch((e) => {
+        this.model.addError('rssUrl', e.message);
+      });
   };
 }
 
