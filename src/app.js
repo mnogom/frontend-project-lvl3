@@ -1,5 +1,6 @@
 import onChange from "on-change";
 import * as _ from 'lodash';
+import yup from 'yup';
 
 const appStates = {
   filling: 'filling',
@@ -17,13 +18,16 @@ const elements = {
   rssInputEl: document.getElementById('rssUrlInput'),
 }
 
-const render = (appState, objectName) => {
-
+const renders = {
+  eraseErrors: () => {},
+  renderErrors: () => {},
+  renderLists: () => {},
 }
 
 const processHandle = (path, value) => {
   switch (path === '') {
     case appStates.filling:
+      renders.eraseErrors();
       return;
     case appStates.validating:
       return;
