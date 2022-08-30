@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>RSS agragator</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+  </head>
+  <body>
+    <div class="container mt-3" id="app">
+      <form>
+        <div class="row g-2">
+          <div class="col">
+            <div class="form-floating">
+              <input type="text" class="form-control" id="rssUrlInput" name="rssUrl" placeholder="__placeholder__">
+              <label for="rssUrlInput">RSS url</label>
+            </div>
+          </div>
+          <div class="col">
+            <input type="submit" id='requestButton' class="btn btn-primary h-100">
+          </div>
+        </div>
+      </form>
+      <ul>
+        <li>
+          <a href="#" data-type="rssUrlExample">https://ru.hexlet.io/lessons.rss</a>
+        </li>
+        <li>
+          <a href="#" data-type="rssUrlExample">http://www.edu.ru/news/it-v-obrazovanii/feed.rss</a>
+        </li>
+      </ul>
+    </div>
+
+    <div id="posts">
+    </div>
+    <div id="feeds">
+    </div>
+
+  </body>
+</html>
