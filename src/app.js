@@ -5,7 +5,8 @@ const appStates = {
   filling: 'filling',
   validating: 'validating',
   requested: 'requested',
-  showing: 'showing',
+  recievedResponse: 'recieved-response',
+  recievedError: 'recieved-error',
 }
 
 const elements = {
@@ -18,6 +19,23 @@ const elements = {
 
 const render = (appState, objectName) => {
 
+}
+
+const processHandle = (path, value) => {
+  switch (path === '') {
+    case appStates.filling:
+      return;
+    case appStates.validating:
+      return;
+    case appStates.requested:
+      return;
+    case appStates.recievedResponse:
+      return;
+    case appStates.recievedError:
+      return;
+    default:
+      return;
+  }
 }
 
 const app = (config = {}) => {
@@ -36,9 +54,7 @@ const app = (config = {}) => {
         },
       },
     },
-  }, (_path, _value, _prevValue, _applyData) => {
-    console.log(_path, _value, _prevValue, _applyData)
-  });
+  }, processHandle);
 
   const handlers = {
     handleSubmit: (event) => {
