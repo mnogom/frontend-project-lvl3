@@ -13,43 +13,41 @@ function Model() {
     }
     throw Error('View is not defined');
   };
-
-  const sendToStateRender = (_path, value) => this.getView().renderState(_path, value);
   
   this.appState = onChange({
     state: appStates.filling,
-  }, sendToStateRender);
+  }, (_path, value) => this.getView().renderState(_path, value));
 
   this.setAppState = (newAppState) => {
     this.appState.state = newAppState;
   };
-
-  const sendToDataRended = (path, value) => this.getView().renderData(path, value);
   
-  this.state = onChange({
+  this.data = onChange({
     feeds: [],
     posts: [],
-  }, sendToDataRended);
+  }, (path, value) => this.getView().renderData(path, value));
 
-  this.getFeeds = () => this.state.feeds;
+  this.getFeeds = () => this.data.feeds;
   
   this.addFeed = (name, url) => {
     const feed = {
       id: _.uniqueId(), name, url, active: false,
     };
-    this.state.feeds.push(feed);
+    this.data.feeds.push(feed);
     return feed;
   };
+
+  this.getPosts = () => this.data.posts;
+
+  this.getPost = (postId) => this.getPosts().find(({ id }) => id === postId);
   
   this.addPosts = (listPosts) => {
     const posts = listPosts.map(({ name, description, feedId }) => ({
       id: _.uniqueId(), name, description, feedId,
     }));
-    this.state.posts.push(...posts);
+    this.data.posts.push(...posts);
     return posts;
   };
-
-  const sendToFormRender = (path, value) => this.getView().renderForm(path, value);
   
   this.formState = onChange({
     form: {
@@ -61,7 +59,7 @@ function Model() {
         },
       },
     },
-  }, sendToFormRender);
+  }, (path, value) => this.getView().renderForm(path, value));
 
   this.setFieldRssUrl = (rssUrl) => {
     this.formState.form.fields.rssUrl.value = rssUrl;

@@ -23,7 +23,7 @@ const fakeRequest = (url) => new Promise((resolve, reject) => setTimeout(() => {
       ],
     },
   });
-}, 2000));
+}, 500));
 
 export {
   fakeUrls,

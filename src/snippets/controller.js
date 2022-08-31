@@ -59,6 +59,11 @@ function Controller() {
         this.getModel().addError('rssUrl', 'Invalid response');
       });
   };
+
+  this.handleShowPost = (postId) => {
+    // trigger show modal
+    console.log(this.getModel().getPost(postId))
+  }
 }
 
 export default Controller;

@@ -82,14 +82,31 @@ function View() {
     switch (path) {
       case 'feeds':
         const feeds = value;
-        elements.feedsContainer.innerHTML = '';
-        const feedsList = createUlElement(feeds);
+        elements.feedsContainer.innerHTML = null;
+        const feedsList = document.createElement('ul');
+        feeds.forEach(({ id, name }) => {
+          const el = document.createElement('li');
+          el.id = `feed-${id}`;
+          el.textContent = name;
+          feedsList.append(el);
+        })
         elements.feedsContainer.append(feedsList);
         return;
       case 'posts':
         const posts = value;
-        elements.postsContainer.innerHTML = '';
-        const postsList = createUlElement(posts);
+        elements.postsContainer.innerHTML = null;
+        const postsList = document.createElement('ul');
+        posts.forEach(({ name, id, feedId }) => {
+          const el = document.createElement('li');
+          el.id = `post-${id}`;
+          el.dataset.feedId = feedId;
+          el.textContent = name;
+          el.addEventListener('click', (event) => {
+            const postId = event.target.id.replace('post-', '')
+            this.getController().handleShowPost(postId);
+          })
+          postsList.append(el);
+        });
         elements.postsContainer.append(postsList);
         return;
       default:
