@@ -13,7 +13,7 @@ function Model() {
     }
     throw Error('View is not defined');
   };
-  
+
   this.appState = onChange({
     state: appStates.filling,
   }, (_path, value) => this.getView().renderState(_path, value));
@@ -21,14 +21,14 @@ function Model() {
   this.setAppState = (newAppState) => {
     this.appState.state = newAppState;
   };
-  
+
   this.data = onChange({
     feeds: [],
     posts: [],
   }, (path, value) => this.getView().renderData(path, value));
 
   this.getFeeds = () => this.data.feeds;
-  
+
   this.addFeed = (name, url) => {
     const feed = {
       id: _.uniqueId(), name, url, active: false,
@@ -40,7 +40,7 @@ function Model() {
   this.getPosts = () => this.data.posts;
 
   this.getPost = (postId) => this.getPosts().find(({ id }) => id === postId);
-  
+
   this.addPosts = (listPosts) => {
     const posts = listPosts.map(({ name, description, feedId }) => ({
       id: _.uniqueId(), name, description, feedId,
@@ -48,7 +48,7 @@ function Model() {
     this.data.posts.push(...posts);
     return posts;
   };
-  
+
   this.formState = onChange({
     form: {
       fields: {
@@ -66,11 +66,11 @@ function Model() {
   };
 
   this.getFieldRssUrl = () => this.formState.form.fields.rssUrl.value;
-  
+
   this.addError = (field, message) => {
     this.formState.form.fields[field].errors.push(message);
   };
-  
+
   this.dropErrors = (field) => {
     this.formState.form.fields[field].errors = [];
   };

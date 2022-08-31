@@ -68,16 +68,6 @@ function View() {
     }
   };
 
-  const createUlElement = (items) => {
-    const listEl = document.createElement('ul');
-    items.forEach(({ name }) => {
-      const el = document.createElement('li');
-      el.textContent = name;
-      listEl.append(el);
-    });
-    return listEl;
-  };
-
   this.renderData = (path, value) => {
     switch (path) {
       case 'feeds':
@@ -89,7 +79,7 @@ function View() {
           el.id = `feed-${id}`;
           el.textContent = name;
           feedsList.append(el);
-        })
+        });
         elements.feedsContainer.append(feedsList);
         return;
       case 'posts':
@@ -102,9 +92,9 @@ function View() {
           el.dataset.feedId = feedId;
           el.textContent = name;
           el.addEventListener('click', (event) => {
-            const postId = event.target.id.replace('post-', '')
+            const postId = event.target.id.replace('post-', '');
             this.getController().handleShowPost(postId);
-          })
+          });
           postsList.append(el);
         });
         elements.postsContainer.append(postsList);

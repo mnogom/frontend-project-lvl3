@@ -62,8 +62,8 @@ function Controller() {
 
   this.handleShowPost = (postId) => {
     // trigger show modal
-    console.log(this.getModel().getPost(postId))
-  }
+    console.log(this.getModel().getPost(postId));
+  };
 }
 
 export default Controller;
