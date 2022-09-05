@@ -6,38 +6,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
   </head>
   <body>
-    <div class="container mt-3" id="app">
-      <form>
-        <div class="row g-2">
-          <div class="col">
-            <div class="has-validation">
-              <div class="form-floating" data-input-target="#rssUrlInput">
-                <input type="text" class="form-control" id="rssUrlInput" name="rssUrl" placeholder="__placeholder__">
-                <label for="rssUrlInput">RSS url</label>
-              </div>
+    <main id="app">
+      <div class="container-fluid px-5 py-5 bg-light">
+        <form class="d-flex">
+          <div class="flex-grow-1 has-validation">
+            <div class="form-floating" data-input-target="#rssUrlInput">
+              <input type="text" class="form-control" id="rssUrlInput" name="rssUrl" placeholder="__placeholder__">
+              <label for="rssUrlInput">RSS url</label>
             </div>
           </div>
-          <div class="col">
-            <input type="submit" id='requestButton' class="btn btn-primary" value="read">
+          <div class="ms-2">
+            <input type="submit" id='requestButton' class="btn btn-primary h-100" value="Add">
           </div>
-        </div>
-      </form>
-      <ul>
-        <li>
-          <a href="#" data-type="rssUrlExample">https://ru.hexlet.io/lessons.rss</a>
-        </li>
-        <li>
-          <a href="#" data-type="rssUrlExample">http://www.edu.ru/news/it-v-obrazovanii/feed.rss</a>
-        </li>
-      </ul>
-
+        </form>
+        <span class="text-muted">
+            Example: <a class="link-secondary" href="#" data-type="rssUrlExample">https://ru.hexlet.io/lessons.rss</a>
+        </span>
+        </ul>
+      </div>
+    <div class="container mt-3">
       <div class="row">
-        <div id="posts" class="col">
-        </div>
-        <div id="feeds" class="col">
-        </div>
+        <div id="posts" class="col"></div>
+        <div id="feeds" class="col"></div>
       </div>
     </div>
+  </main>
 
   </body>
 </html>
+
+
+<!-- http://www.edu.ru/news/it-v-obrazovanii/feed.rss -->
