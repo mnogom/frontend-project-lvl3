@@ -8,6 +8,7 @@ function View() {
     requestButtonEl: document.getElementById('requestButton'),
     rssFloatEl: document.querySelector('[data-input-target="#rssUrlInput"]'),
     rssInputEl: document.getElementById('rssUrlInput'),
+    rssErrorEl: document.getElementById('errorMessage'),
   };
 
   this.setController = (controller) => {
@@ -29,17 +30,11 @@ function View() {
         if (errors.length === 0) {
           elements.rssFloatEl.classList.remove('is-invalid');
           elements.rssInputEl.classList.remove('is-invalid');
-          const errorDiv = elements.rssFloatEl.nextElementSibling;
-          if (errorDiv) {
-            errorDiv.remove();
-          }
+          elements.rssErrorEl.textContent = '';
         } else {
           elements.rssFloatEl.classList.add('is-invalid');
           elements.rssInputEl.classList.add('is-invalid');
-          const errorDiv = document.createElement('div');
-          errorDiv.classList.add('invalid-feedback');
-          errorDiv.textContent = errors.join(', ');
-          elements.rssFloatEl.after(errorDiv);
+          elements.rssErrorEl.textContent = errors.join(', ');
         }
         break;
       default:
@@ -75,10 +70,10 @@ function View() {
         elements.feedsContainer.innerHTML = null;
         const feedsList = document.createElement('ul');
         feeds.forEach(({ id, name }) => {
-          const el = document.createElement('li');
-          el.id = `feed-${id}`;
-          el.textContent = name;
-          feedsList.append(el);
+          const li = document.createElement('li');
+          li.id = `feed-${id}`;
+          li.textContent = name;
+          feedsList.append(li);
         });
         elements.feedsContainer.append(feedsList);
         return;
@@ -86,16 +81,21 @@ function View() {
         const posts = value;
         elements.postsContainer.innerHTML = null;
         const postsList = document.createElement('ul');
-        posts.forEach(({ name, id, feedId }) => {
-          const el = document.createElement('li');
-          el.id = `post-${id}`;
-          el.dataset.feedId = feedId;
-          el.textContent = name;
-          el.addEventListener('click', (event) => {
-            const postId = event.target.id.replace('post-', '');
-            this.getController().handleShowPost(postId);
-          });
-          postsList.append(el);
+        posts.forEach(({ name, description, id, feedId }) => {
+          const li = document.createElement('li');
+          const span = document.createElement('span');
+          span.id = `post-${id}`;
+          span.dataset.feedId = feedId;
+          span.textContent = name;
+          const button = document.createElement('button');
+          button.classList.add('btn', 'btn-sm', 'btn-outline-primary');
+          button.textContent = 'Preview';
+          button.dataset.bsToggle = 'modal';
+          button.dataset.bsTarget = '#postPreview';
+          button.dataset.bsTitle = name;
+          button.dataset.bsDescription = description;
+          li.append(span, button)
+          postsList.append(li);
         });
         elements.postsContainer.append(postsList);
         return;

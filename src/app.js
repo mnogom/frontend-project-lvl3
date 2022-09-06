@@ -20,6 +20,16 @@ const app = () => {
     controller.handleValidateRssUrl(rssUrl);
   });
 
+  const modal = document.getElementById('postPreview');
+  modal.addEventListener('show.bs.modal', event => {
+    const button = event.relatedTarget;
+    const title = button.dataset.bsTitle;
+    const description = button.dataset.bsDescription;
+
+    document.querySelector('#postPreview .modal-title').textContent = title;
+    document.querySelector('#postPreview .modal-body p').textContent = description;
+  })
+
   // --- auto-fillers ---
   Object.entries(fakeUrls).forEach(([name, url]) => {
     const button = document.createElement('button');
