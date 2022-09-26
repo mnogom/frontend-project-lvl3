@@ -1,5 +1,5 @@
 const parseRss = (rawData) => {
-  const dom = new window.DOMParser().parseFromString(rawData, "text/xml");
+  const dom = new window.DOMParser().parseFromString(rawData, 'text/xml');
   const feedTitle = dom.querySelector('channel title').textContent;
   const feedDescription = dom.querySelector('channel description').textContent;
   const posts = [];
@@ -7,10 +7,10 @@ const parseRss = (rawData) => {
     const postTitle = item.querySelector('title').textContent;
     const postDescription = item.querySelector('description').textContent;
     const link = item.querySelector('link').textContent;
-    posts.push({ title: postTitle, description: postDescription, link })
-  })
+    posts.push({ title: postTitle, description: postDescription, link });
+  });
 
-  return { title: feedTitle, description: feedDescription, posts }
-}
+  return { title: feedTitle, description: feedDescription, posts };
+};
 
 export default parseRss;
