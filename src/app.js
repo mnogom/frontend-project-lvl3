@@ -5,6 +5,7 @@ import _ from 'lodash';
 import appStates from './app-states.js';
 import getRssData from './utils/rss-client.js';
 import { fakeUrls } from './snippets/fake-axios.js';
+import { isPostInList } from './utils/comparator.js';
 
 
 const getRssSheme = (existingUrls) => {
@@ -158,7 +159,7 @@ const app = () => {
     },
   );
 
-  const form = document.querySelector('form');
+  const form = elements.formEl;
   form.addEventListener('submit', (event) => {
     event.preventDefault();
     state.appState = appStates.submitted;
@@ -171,9 +172,10 @@ const app = () => {
     rssShema.validate(rssUrl)
       .then(() => {
         state.appState = appStates.requestedFeed;
-        getRssData(rssUrl).then(({ feed, posts }) => {
-          state.data.feeds.push(feed);
-          state.data.posts = _.union(state.data.posts, posts);
+        getRssData(rssUrl).then((feed) => {
+          const newFeed = { ...feed, id: _.uniqueId() };
+          state.data.feeds.push(newFeed);
+          feed.posts.forEach((post) => state.data.posts.push({ ...post, id: _.uniqueId(), feedId: newFeed.id }));
           form.reset();
           state.appState = appStates.recievedResponse;
         });
@@ -187,9 +189,16 @@ const app = () => {
   const autoUpdate = () => {
     setTimeout(() => {
       if (state.data.feeds.length !== 0) {
-        state.data.feeds.forEach(({ link }) => {
+        state.data.feeds.forEach(({ id: feedId, link }) => {
+          console.log(state.data.feeds)
           getRssData(link).then(({ posts }) => {
-            // state.data.posts.push(...posts)
+            const newPosts = [];
+            posts.forEach((post) => {
+              if (!isPostInList(post, state.data.posts)) {
+                newPosts.push({ ...post, id: _.uniqueId(), feedId });
+              }
+            });
+            state.data.posts.push(...newPosts);
           }).catch(console.log);
         })
       }
