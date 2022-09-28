@@ -1,11 +1,11 @@
 import onChange from 'on-change';
 
-import axios from 'axios';
 import * as yup from 'yup';
 import _ from 'lodash';
 import appStates from './app-states.js';
+import getRssData from './utils/rss-client.js';
 import { fakeUrls } from './snippets/fake-axios.js';
-import parseRss from './rss-parser.js';
+
 
 const getRssSheme = (existingUrls) => {
   const rssShema = yup.string()
@@ -35,6 +35,8 @@ const app = () => {
       data: {
         feeds: [],
         posts: [],
+        viewedPosts: [],
+        activePost: null,
       },
       formState: {
         rssUrl: {
@@ -49,11 +51,11 @@ const app = () => {
           switch (value) {
             case appStates.submitted:
             case appStates.requestedFeed:
-            case appStates.recievedResponse:
               elements.requestButtonEl.disabled = true;
               elements.rssInputEl.focus();
               break;
             case appStates.failedValidation:
+            case appStates.recievedResponse:
             case appStates.recievedError:
               elements.requestButtonEl.disabled = false;
               break;
@@ -66,7 +68,7 @@ const app = () => {
           {
             elements.feedsContainer.innerHTML = null;
             const feedsUl = document.createElement('ul');
-            value.forEach(({ title, description }) => {
+            state.data.feeds.forEach(({ title, description }) => {
               const feedLi = document.createElement('li');
               const feedH3 = document.createElement('h5');
               feedH3.textContent = title;
@@ -80,39 +82,48 @@ const app = () => {
           }
           break;
 
+        case 'data.viewedPosts':
         case 'data.posts':
           {
             elements.postsContainer.innerHTML = null;
             const postsUl = document.createElement('ul');
-            value.forEach(({ id, title, link }) => {
+            state.data.posts.forEach(({ id, title, link }) => {
               const postLi = document.createElement('li');
               postLi.classList.add('d-flex', 'justify-content-between', 'mt-2');
 
               const postA = document.createElement('a');
-              postA.classList.add('link-primary');
               postA.textContent = title;
               postA.href = link;
               postA.target = '_blank';
               postA.dataset.postId = id;
 
               const readButton = document.createElement('button');
-              readButton.classList.add('btn', 'btn-sm', 'btn-outline-primary', 'ms-2');
               readButton.textContent = 'Preview';
               readButton.dataset.bsToggle = 'modal';
               readButton.dataset.bsTarget = '#modalPostPreview';
               readButton.dataset.postId = id;
 
+              if (state.data.viewedPosts.includes(id)) {
+                postA.classList.add('link-secondary');
+                readButton.classList.add('btn', 'btn-sm', 'btn-outline-secondary', 'ms-2');
+              } else {
+                postA.classList.add('link-primary');
+                readButton.classList.add('btn', 'btn-sm', 'btn-outline-primary', 'ms-2');
+              }
+
               [postA, readButton].forEach((el) => {
                 el.addEventListener(
                   'click',
-                  () => { state.data.posts.find(({ id: postId }) => postId === id).readed = true; },
+                  (event) => {
+                    state.data.viewedPosts = _.union(state.data.viewedPosts, [event.target.dataset.postId]);
+                  }
                 );
               });
 
               readButton.addEventListener(
                 'click',
-                () => {
-                  state.data.posts.find(({ id: postId }) => postId === id).previewed = true;
+                (event) => {
+                  state.data.activePost = state.data.posts.find(({ id }) => id === event.target.dataset.postId);
                 },
               );
 
@@ -123,24 +134,10 @@ const app = () => {
           }
           break;
 
-        case path.match(/data.posts.[0-9]*.readed/)?.input:
-          {
-            const index = parseInt(path.slice(11, -7), 10);
-            const { id } = state.data.posts[index];
-            document.querySelector(`a[data-post-id="${id}"]`).classList.add('link-secondary');
-            document.querySelector(`button[data-post-id="${id}"]`).classList.remove('btn-outline-primary');
-            document.querySelector(`button[data-post-id="${id}"]`).classList.add('btn-outline-secondary');
-          }
-          break;
-
-        case path.match(/data.posts.[0-9]*.previewed/)?.input:
-          {
-            const index = parseInt(path.slice(11, -7), 10);
-            const post = state.data.posts[index];
-            elements.modalPostPreviewTitle.textContent = post.title;
-            elements.modalPostPreviewBody.textContent = post.description;
-            elements.modalPostGoTo.href = post.link;
-          }
+        case 'data.activePost':
+          elements.modalPostPreviewTitle.textContent = state.data.activePost.title;
+          elements.modalPostPreviewBody.textContent = state.data.activePost.description;
+          elements.modalPostGoTo.href = state.data.activePost.link;
           break;
 
         case 'formState.rssUrl.error':
@@ -174,47 +171,32 @@ const app = () => {
     rssShema.validate(rssUrl)
       .then(() => {
         state.appState = appStates.requestedFeed;
-        const url = `https://allorigins.hexlet.app/get?url=${encodeURIComponent(rssUrl)}`;
-        axios.get(url)
-          .then((response) => {
-            const feedData = parseRss(response.data.contents);
-
-            const feedId = _.uniqueId();
-            state.data.feeds.push({
-              id: feedId,
-              title: feedData.title,
-              description: feedData.description,
-              link: rssUrl,
-            });
-
-            state.data.posts.push(
-              ...feedData.posts.map(({ title, description, link }) => (
-                {
-                  id: _.uniqueId(),
-                  feedId,
-                  title,
-                  description,
-                  link,
-                  readed: false,
-                  previewed: false,
-                }
-              )),
-            );
-
-            form.reset();
-            state.appState = appStates.recievedResponse;
-          })
-          .catch((error) => {
-            console.log(error);
-            state.appState = appStates.recievedError;
-            state.formState.rssUrl.error = 'Invalid response';
-          });
+        getRssData(rssUrl).then(({ feed, posts }) => {
+          state.data.feeds.push(feed);
+          state.data.posts = _.union(state.data.posts, posts);
+          form.reset();
+          state.appState = appStates.recievedResponse;
+        });
       })
       .catch((error) => {
         state.appState = state.recivedError;
         state.formState.rssUrl.error = error.message;
       });
   });
+
+  const autoUpdate = () => {
+    setTimeout(() => {
+      if (state.data.feeds.length !== 0) {
+        state.data.feeds.forEach(({ link }) => {
+          getRssData(link).then(({ posts }) => {
+            // state.data.posts.push(...posts)
+          }).catch(console.log);
+        })
+      }
+      autoUpdate();
+    }, 5000)
+  };
+  autoUpdate();
 
   // --- auto-fillers ---
   Object.entries(fakeUrls).forEach(([name, url]) => {
